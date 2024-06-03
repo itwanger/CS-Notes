@@ -35,48 +35,51 @@ GitHub 上有一个很知名的开源知识库《[CS-Notes](https://github.com/C
 
 ### 基本类型
 
-- byte/8
-- char/16
-- short/16
-- int/32
-- float/32
-- long/64
-- double/64
-- boolean/\~
+![二哥的 Java 进阶之路：数据类型](https://cdn.tobebetterjavaer.com/tobebetterjavaer/images/core-grammar/nine-01.png)
 
-boolean 只有两个值：true、false，可以使用 1 bit 来存储，但是具体大小没有明确规定。JVM 会在编译时期将 boolean 类型的数据转换为 int，使用 1 来表示 true，0 表示 false。JVM 支持 boolean 数组，但是是通过读写 byte 数组来实现的。
+Java 基本数据类型的默认值和占用大小：
 
-- [Primitive Data Types](https://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html)
-- [The Java® Virtual Machine Specification](https://docs.oracle.com/javase/specs/jvms/se8/jvms8.pdf)
+| 数据类型 | 默认值   | 大小   |
+| -------- | -------- | ------ |
+| boolean  | false    | 不确定 |
+| char     | '\u0000' | 2 字节 |
+| byte     | 0        | 1 字节 |
+| short    | 0        | 2 字节 |
+| int      | 0        | 4 字节 |
+| long     | 0L       | 8 字节 |
+| float    | 0.0f     | 4 字节 |
+| double   | 0.0      | 8 字节 |
+
+推荐阅读：[二哥的 Java 进阶之路：Java 基本数据类型](https://javabetter.cn/basic-grammar/basic-data-type.html)
 
 ### 包装类型
 
 基本类型都有对应的包装类型，基本类型与其对应的包装类型之间的赋值使用自动装箱与拆箱完成。
 
 ```java
-Integer x = 2;     // 装箱 调用了 Integer.valueOf(2)
-int y = x;         // 拆箱 调用了 X.intValue()
+Integer x = 2; // 装箱 调用了 Integer.valueOf(2)
+int y = x; // 拆箱 调用了 X.intValue()
 ```
 
-- [Autoboxing and Unboxing](https://docs.oracle.com/javase/tutorial/java/data/autoboxing.html)
+推荐阅读：[二哥的 Java 进阶之路：拆箱和装箱](https://javabetter.cn/basic-extra-meal/box.html)
 
 ### 缓存池
 
-new Integer(123) 与 Integer.valueOf(123) 的区别在于：
+`new Integer(123)` 与 `Integer.valueOf(123)` 的区别在于：
 
-- new Integer(123) 每次都会新建一个对象；
-- Integer.valueOf(123) 会使用缓存池中的对象，多次调用会取得同一个对象的引用。
+- `new Integer(123)` 每次都会新建一个对象；
+- `Integer.valueOf(123)` 会使用缓存池中初始化好的对象。
 
 ```java
 Integer x = new Integer(123);
 Integer y = new Integer(123);
-System.out.println(x == y);    // false
+System.out.println(x == y); // false
 Integer z = Integer.valueOf(123);
 Integer k = Integer.valueOf(123);
-System.out.println(z == k);   // true
+System.out.println(z == k); // true
 ```
 
-valueOf() 方法的实现比较简单，就是先判断值是否在缓存池中，如果在的话就直接返回缓存池的内容。
+`valueOf()` 方法的实现比较简单，先判断值是否在缓存池中，如果在的话就直接返回缓存池的对象。
 
 ```java
 public static Integer valueOf(int i) {
@@ -120,7 +123,7 @@ static {
 }
 ```
 
-编译器会在自动装箱过程调用 valueOf() 方法，因此多个值相同且值在缓存池范围内的 Integer 实例使用自动装箱来创建，那么就会引用相同的对象。
+编译器会在自动装箱过程调用 `valueOf()` 方法，也就是说，值相同且在缓存池内的 Integer 对象使用 == 来比较的时候会返回 true。
 
 ```java
 Integer m = 123;
@@ -136,20 +139,21 @@ System.out.println(m == n); // true
 - int values between -128 and 127
 - char in the range \u0000 to \u007F
 
-在使用这些基本类型对应的包装类型时，如果该数值范围在缓冲池范围内，就可以直接使用缓冲池中的对象。
+在 Java 8 的数值类缓冲池中，Integer 的缓冲池 IntegerCache 很特殊，这个缓冲池的下界是 - 128，上界默认是 127，但是上界是可调的。
 
-在 jdk 1.8 所有的数值类缓冲池中，Integer 的缓冲池 IntegerCache 很特殊，这个缓冲池的下界是 - 128，上界默认是 127，但是这个上界是可调的，在启动 jvm 的时候，通过 -XX:AutoBoxCacheMax=&lt;size&gt; 来指定这个缓冲池的大小，该选项在 JVM 初始化的时候会设定一个名为 java.lang.IntegerCache.high 系统属性，然后 IntegerCache 初始化的时候就会读取该系统属性来决定上界。
+在启动 jvm 的时候，可以通过 -XX:AutoBoxCacheMax=&lt;size&gt; 来指定缓冲池的大小，该选项在 JVM 初始化的时候会设定一个名为 java.lang.IntegerCache.high 系统属性，然后 IntegerCache 初始化的时候就会读取该系统属性来决定上界。
 
-[StackOverflow : Differences between new Integer(123), Integer.valueOf(123) and just 123
-](https://stackoverflow.com/questions/9030817/differences-between-new-integer123-integer-valueof123-and-just-123)
+![沉默王二：IntegerCache.high](https://cdn.tobebetterjavaer.com/stutymore/Java基础-20240602173130.png)
+
+> 微信搜索《**沉默王二**》或者微信扫下面的二维码，关注后回复《**java**》即可获取最新的 PDF 版本。
+
+![手机端可以长按识别](https://cdn.tobebetterjavaer.com/tobebetterjavaer/images/gongzhonghao.png)
 
 ## 二、String
 
 ### 概览
 
-String 被声明为 final，因此它不可被继承。(Integer 等包装类也不能被继承）
-
-在 Java 8 中，String 内部使用 char 数组存储数据。
+String 被声明为 final，因此它不能被继承。在 Java 8 中，String 内部使用 char 数组存储数据。
 
 ```java
 public final class String
@@ -159,7 +163,7 @@ public final class String
 }
 ```
 
-在 Java 9 之后，String 类的实现改用 byte 数组存储字符串，同时使用 `coder` 来标识使用了哪种编码。
+但在 Java 9 之后，String 类的实现改用 byte 数组来存储字符串，同时使用 `coder` 来标识使用了哪种编码。
 
 ```java
 public final class String
@@ -172,7 +176,9 @@ public final class String
 }
 ```
 
-value 数组被声明为 final，这意味着 value 数组初始化之后就不能再引用其它数组。并且 String 内部没有改变 value 数组的方法，因此可以保证 String 不可变。
+value 数组被声明为 final，这意味着 value 变量在数组初始化之后就不能再引用其它数组对象了。并且 String 内部没有改变 value 数组的方法，因此可以保证 String 不可变。
+
+推荐阅读：[二哥的 Java 进阶之路：String类源码](https://javabetter.cn/string/string-source.html)
 
 ### 不可变的好处
 
