@@ -7,8 +7,8 @@ GitHub 上有一个很知名的开源知识库《[CS-Notes](https://github.com/C
 一共五个章节，基础篇、IO 篇、容器篇、并发篇和虚拟机篇，我结合《[二哥的 Java 进阶之路](https://javabetter.cn/)》对内容做一些补充和优化，并导出了亮白版和暗黑版的 PDF 和 epub 版本，好方便大家在 30 天内真的速通 Java。
 
 - 由于时间仓促和个人能力有限，手册难免存在错误和疏漏，还请大家批评指正。微信 itwanger
-- 该手册会持续更新，遇到好的内容会往里面加。
-- [二哥的 Java 进阶之路：Java 最新学习路线](https://javabetter.cn/xuexiluxian/java/yitiaolong.html)
+- 该手册会持续更新，再次感谢原作者 CS-Notes，原文档地址：[https://github.com/CyC2018/CS-Notes/](https://github.com/CyC2018/CS-Notes/blob/master/notes/Java%20%E5%9F%BA%E7%A1%80.md)
+- 推荐：[二哥的 Java 进阶之路：Java 最新学习路线](https://javabetter.cn/xuexiluxian/java/yitiaolong.html)
 
 ## 最新 PDF 获取
 
@@ -180,27 +180,33 @@ value 数组被声明为 final，这意味着 value 变量在数组初始化之�
 
 推荐阅读：[二哥的 Java 进阶之路：String类源码](https://javabetter.cn/string/string-source.html)
 
-### 不可变的好处
+### 字符串不可变的好处
 
-**1. 可以缓存 hash 值**  
+**1. 可以用来作为 HashMap 的 key**  
 
-因为 String 的 hash 值经常被使用，例如 String 用做 HashMap 的 key。不可变的特性可以使得 hash 值也不可变，因此只需要进行一次计算。
+HashMap 的底层数据结构是数组，其键值对在数组中的位置是通过 `(n - 1) & hash` 计算得到的，n 也就是数组的长度，hash 也就是键的哈希值。
 
-**2. String Pool 的需要**  
+![沉默王二：字符串的不可变性](https://cdn.tobebetterjavaer.com/stutymore/Java基础-20240604072937.png)
 
-如果一个 String 对象已经被创建过了，那么就会从 String Pool 中取得引用。只有 String 是不可变的，才可能使用 String Pool。
+如果键是可变的，那么在计算键的哈希值时，哈希值也是不确定的，于是就无法准确地在数组中定位到键值对的位置。
 
-<div align="center"> <img src="https://cs-notes-1256109796.cos.ap-guangzhou.myqcloud.com/image-20191210004132894.png"/> </div><br>
+推荐阅读：[HashMap 的源码解读](https://javabetter.cn/collection/hashmap.html)
+
+**2. 字符串常量池的需要**  
+
+因为字符串的使用频率非常高，所以 Java 设计者就决定将字符串常量放到一个公共的地方，这个地方叫做字符串常量池（String Pool）。
+
+通过双引号创建的字符串（如 "沉默王二"）都会被加入到字符串常量池中，这样就可以减少字符串的创建，节约内存空间。
+
+![沉默王二：字符串常量池](https://cdn.tobebetterjavaer.com/stutymore/Java基础-20240604074510.png)
+
+推荐阅读：[深入理解Java的字符串常量池](https://javabetter.cn/string/constant-pool.html)
 
 **3. 安全性**  
 
-String 经常作为参数，String 不可变性可以保证参数不可变。例如在作为网络连接参数的情况下如果 String 是可变的，那么在网络连接过程中，String 被改变，改变 String 的那一方以为现在连接的是其它主机，而实际情况却不一定是。
+String 经常作为参数进行传递，比如说数据库连接中的用户名和密码，如果 String 是可变的，那么在传递的过程中就会存在安全隐患。
 
-**4. 线程安全**  
-
-String 不可变性天生具备线程安全，可以在多个线程中安全地使用。
-
-[Program Creek : Why String is immutable in Java?](https://www.programcreek.com/2013/04/why-string-is-immutable-in-java/)
+推荐阅读：[为什么 Java 字符串是不可变的？](https://javabetter.cn/string/immutable.html)
 
 ### String, StringBuffer and StringBuilder	
 
